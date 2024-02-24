@@ -121,23 +121,16 @@ gl.run.EMIBD9 <- function(x,
     stop()
   }
   
-  
   rundir <- tempdir()
-  
-   
   
   # individual IDs must have a maximal length of 20 characters. The IDs must NOT
   # contain blank space and other illegal characters (such as /), and must be
   # unique among all sampled individuals (i.e. NO duplications). Any string longer
   # than 20 characters for individual ID will be truncated to have 20 characters.
 
-  
-  
   x2 <- x  #copy to work only on the copied data set
   hold_names <- indNames(x)
   indNames(x2) <- 1:nInd(x2)
-  
-
   
   NumIndiv <- nInd(x2)
   NumLoci <- nLoc(x2)
@@ -189,9 +182,6 @@ gl.run.EMIBD9 <- function(x,
     col.names = FALSE
   )
   
-
-
-  
   # run EMIBD9
   # change into tempdir (run it there)
   old.path <- getwd()
@@ -200,11 +190,7 @@ gl.run.EMIBD9 <- function(x,
   system(cmd)
   
   ### get output  
-  
- 
-  
-  
-  x_lines <- readLines("EMIBD9_Res.ibd9")
+  x_lines <- readLines(outfile)
   strt <- which(grepl("^IBD", x_lines)) + 2
   stp <- which(grepl("Indiv genotypes", x_lines)) - 4
   linez_headings <- x_lines[strt]
@@ -226,16 +212,10 @@ gl.run.EMIBD9 <- function(x,
   for (i in 1:nrow(df)) {
     res[df[i, 1], df[i, 2]] <- df[i, 3]
   }
-
- 
- 
-
+  
   colnames(res) <- indNames(x)
   rownames(res) <- indNames(x)
 
-
- 
-  
   #return to old path
   setwd(old.path)
   
