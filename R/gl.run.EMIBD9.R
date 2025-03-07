@@ -194,7 +194,71 @@ gl.run.EMIBD9 <- function(x,
   # unique among all sampled individuals (i.e. NO duplications). Any string longer
   # than 20 characters for individual ID will be truncated to have 20 characters.
 
+  
+  x2 <- x  #copy to work only on the copied data set
+  hold_names <- indNames(x)
+  indNames(x2) <- 1:nInd(x2)
+  
+  NumIndiv <- nInd(x2)
+  NumLoci <- nLoc(x2)
+  DataForm <- 2
+  if (Inbreed) {
+    Inbreed <- 1
+  } else{
+    Inbreed <- 0
+  }
+  
+  # Inbreed <- Inbreed
+  GtypeFile <- "EMIBD9_Gen.dat"
+  OutFileName <-  outfile
+  # ISeed <- ISeed
+  RndDelta0 <- 1
+  EM_Method <- 1
+  OutAlleleFre <- 0
+  
+  param <- paste(
+    NumIndiv,
+    NumLoci,
+    DataForm,
+    Inbreed,
+    GtypeFile,
+    OutFileName,
+    ISeed,
+    RndDelta0,
+    EM_Method,
+    OutAlleleFre,
+    sep = "\n"
+  )
+  
+  write.table(
+    param,
+    quote = FALSE,
+    row.names = FALSE,
+    col.names = FALSE,
+    file = file.path(rundir, "MyData.par"))
 
+  
+  IndivID <- paste(indNames(x2))
+  
+  gl_mat <- as.matrix(x2)
+  gl_mat[is.na(gl_mat)] <- 3
+  
+  tmp <- cbind(apply(gl_mat, 1, function(y) {
+    Reduce(paste0, y)
+  }))
+  
+  tmp <- rbind(paste(indNames(x2), collapse = " "), tmp)
+  
+  write.table(tmp,
+              file = file.path(rundir, "EMIBD9_Gen.dat"),
+              quote = FALSE,
+              row.names = FALSE,
+              col.names = FALSE
+  )
+  
+  
+  
+  
   # run EMIBD9
   # change into tempdir (run it there)
   old.path <- getwd()
@@ -202,9 +266,7 @@ gl.run.EMIBD9 <- function(x,
   setwd(rundir)
   system(cmd)
 
-
     # get output
-
   x_lines <- readLines(outfile)
   strt <- which(grepl("^IBD", x_lines)) + 2
   stp <- which(grepl("Indiv genotypes", x_lines)) - 4
@@ -250,7 +312,7 @@ gl.run.EMIBD9 <- function(x,
   
   colnames(res) <- indNames(x)
   rownames(res) <- indNames(x)
-
+  
   # Inbreeding
   inbreedStart <-
     which(grepl("^Indiv genotypes at polymorphic loci", x_lines)) + 1
